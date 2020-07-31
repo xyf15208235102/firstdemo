@@ -13,6 +13,7 @@ import Enum from './enum'
 import './mock/about'
 // import './mock/serve'
 import axios from 'axios'
+import './core/vant'
 const myPlugin = {
   install (vue) {
     vue.prototype.myPlugin = this

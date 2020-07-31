@@ -5,6 +5,9 @@
       <div id="imap"></div>
       <div id="echarts"></div>
     </div>
+    <div @click="login()">{{userName}}</div>
+    <div @click="changeNum(Math.random().toFixed(2))">{{num}}</div>
+    <van-field v-model="value"  />
     <Footer />
   </div>
 </template>
@@ -27,32 +30,83 @@ export default {
   components: { Header, Footer },
   data () {
     return {
-
+      myChart: '',
+      first: 'xu',
+      second: 'yunfeng',
+      value: '123'
     }
   },
   computed: {
     ...mapState({
-      text: state => state.text
-    })
+      text: state => state.text,
+      userName: state => {
+        return state.app.userName
+      },
+      num: state => state.num
+    }),
+    full: {
+      get () {
+        console.log('调用了getter属性')
+        return this.first + ' ' + this.second
+      },
+      set (val) {
+        console.log('调用了setter属性')
+        console.log(val)
+        // this.full = val
+      }
+    }
   },
-  watch: {},
+  watch: {
+    userName (nextValue, preValue) {
+      // console.log(nextValue, preValue)
+      this.updateEcharts(nextValue)
+    }
+  },
   methods: {
-    ...mapMutations(['aaa']),
-    ...mapActions(['asyncaaa']),
+    inputChange (e) {
+      this.value = e
+    },
+    fullName () {
+      this.first = Math.random().toFixed(2)
+    },
+    changeNum () {
+      // this.$store.commit('inputChange', Math.random().toFixed(2))
+    },
+    ...mapMutations(['aaa', 'changeNum']),
+    ...mapActions(['asyncaaa', 'login']),
     changeTitle () {
       // this.$store.commit('aaa', 'header')
       this.$store.dispatch('asyncaaa', 'async')
+    },
+    updateEcharts (name) {
+      this.myChart.setOption({
+        title: {
+          left: 'center',
+          text: name
+        }
+      })
+    },
+    getMogic (array) {
+      for (let index = 0; index < array.length; index++) {
+        const element = array[index]
+        if (element === index) {
+          return element
+        }
+      }
+      return -1
     }
   },
   mounted () {
+    // console.log(this.$store.state.app)
     const map = new AMap.Map('imap', {
       zoom: 11, // 级别
-      center: [116.397428, 39.90923], // 中心点坐标
+      center: [103.639998, 31.005274], // 中心点坐标
       viewMode: '3D'// 使用3D视图
     })
 
     // 基于准备好的dom，初始化echarts实例
     var myChart = echarts.init(document.getElementById('echarts'))
+    this.myChart = myChart
     // 绘制图表
     myChart.setOption({
 

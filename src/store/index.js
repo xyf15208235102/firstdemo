@@ -1,12 +1,13 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
-
+import app from './module/app'
 Vue.use(Vuex)
 
 export default new Vuex.Store({
   state: {
     text: 'head',
-    count: 0
+    count: 0,
+    num: '123'
   },
   mutations: {
     aaa (state, payload) {
@@ -17,6 +18,9 @@ export default new Vuex.Store({
     },
     addCount (state, payload) {
       state.count += 5
+    },
+    changeNum (state, payload) {
+      state.num = payload
     }
   },
   actions: {
@@ -27,5 +31,6 @@ export default new Vuex.Store({
     }
   },
   modules: {
+    app
   }
 })
