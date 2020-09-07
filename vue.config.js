@@ -10,5 +10,6 @@ module.exports = {
       .set('assets', resolve('src/assets'))
       .set('components', resolve('src/components'))
       .set('layout', resolve('src/layout'))
+      .set('cesium', resolve('../node_modules/cesium/Source'))
   }
 }
