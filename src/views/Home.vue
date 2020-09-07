@@ -1,6 +1,5 @@
-/* eslint-disable no-undef */
 /**
- * 鼠标左键单击事件
+ *鼠标左键单击事件
 
 Cesium.ScreenSpaceEventType.LEFT_CLICK
 
@@ -57,10 +56,12 @@ Cesium.ScreenSpaceEventType.RIGHT_DOWN
 Cesium.ScreenSpaceEventType.WHEEL
  */
 <template>
-  <div id="cesium_wrapper">
+  <div>
+    <div id="cesium_wrapper" />
   </div>
 </template>
 <script>
+import { getPosition } from '../utils/util'
 export default {
   name: '',
   components: {},
@@ -75,6 +76,35 @@ export default {
     }
   },
   watch: {},
+  mounted () {
+    console.log(this.Cesium)
+    // eslint-disable-next-line no-undef
+    const viewer = new Cesium.Viewer('cesium_wrapper')
+    this.viewer = viewer
+    // this.leftClick()
+    this.rightClick()
+    getPosition(this.viewer, 1, (position) => {
+      console.log(position)
+    })
+    const redBox = viewer.entities.add({
+      id: '001',
+      name: 'Red box with black outline',
+      position: Cesium.Cartesian3.fromDegrees(104.06591447589923, 30.630028033786726, -0.0020530597916422126),
+      cylinder: {
+        length: 400000.0,
+        topRadius: 0.0,
+        bottomRadius: 200000.0,
+        material: Cesium.Color.RED
+      }
+    })
+
+    viewer.zoomTo(viewer.entities)
+  },
+  beforeMount () {
+    // 解除左键单击事件
+    this.cHander.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK)
+    this.cHander.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK)
+  },
   methods: {
     leftClick () {
       // todo：在椭球下点击创建点
@@ -97,33 +127,21 @@ export default {
     rightClick () {
       // todo：在椭球下点击创建点
       const viewer = this.viewer
-      this.viewer.screenSpaceEventHandler.setInputAction(function (clickEvent) {
-        var ray1 = viewer.camera.getPickRay(clickEvent.position)
-        var cartesian = viewer.scene.globe.pick(ray1, viewer.scene)
-        console.log('地形高度点', cartesian)
-        var pick = viewer.scene.pickPosition(clickEvent.position)
-        var pickModel = viewer.scene.pick(clickEvent.position)
-        if (pickModel && pick && !pickModel.id) {
-          var height = Cesium.Cartographic.fromCartesian(pick).height
-          var lat = Cesium.Math.toDegrees(Cesium.Cartographic.fromCartesian(pick).latitude)
-          var lng = Cesium.Math.toDegrees(Cesium.Cartographic.fromCartesian(pick).longitude)
-          cartesian = Cesium.Cartesian3.fromDegrees(lng, lat, height)
-          console.log('模型高度点', cartesian)
-        }
+      this.viewer.screenSpaceEventHandler.setInputAction(function (movement) {
+        // 获取鼠标点的对应椭球面位置：世界坐标（Cartesian3）
+        var position = viewer.scene.camera.pickEllipsoid(movement.position, viewer.scene.globe.ellipsoid)
+        console.log('世界坐标', position)
+        // 获取加载地形后对应的经纬度和高程：地标坐标
+        var ray = viewer.camera.getPickRay(movement.position)
+        var position = viewer.scene.globe.pick(ray, viewer.scene)
+        console.log('地标坐标', position)
+        // 获取倾斜摄影或模型点击处的坐标：场景坐标
+        var position = viewer.scene.pickPosition(movement.position)
+        console.log('场景坐标', position)
+        // 获取点击处屏幕坐标 ：屏幕坐标
+        console.log('屏幕坐标', movement.position)
       }, Cesium.ScreenSpaceEventType.RIGHT_CLICK)
     }
-  },
-  mounted () {
-    // eslint-disable-next-line no-undef
-    const viewer = new Cesium.Viewer('cesium_wrapper')
-    this.viewer = viewer
-    this.leftClick()
-    this.rightClick()
-  },
-  beforeMount () {
-    // 解除左键单击事件
-    this.cHander.removeInputAction(Cesium.ScreenSpaceEventType.LEFT_CLICK)
-    this.cHander.removeInputAction(Cesium.ScreenSpaceEventType.RIGHT_CLICK)
   }
 
 }

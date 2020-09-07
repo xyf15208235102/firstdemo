@@ -23,6 +23,7 @@ const myPlugin = {
 }
 Vue.prototype.$moment = moment
 Vue.prototype.$axios = axios
+Vue.prototype.Cesium = Cesium
 // Vue.prototype.$Enum = Enum
 Object.assign(Vue.prototype, { ...Enum })
 Vue.use(myPlugin)
